@@ -1,25 +1,34 @@
 package Main;
 
+import bean.Ativo;
+import bean.DayInfos;
 import org.jopendocument.dom.spreadsheet.Sheet;
 import org.jopendocument.dom.spreadsheet.SpreadSheet;
 import org.jopendocument.model.OpenDocument;
 import org.jopendocument.model.text.TextA;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import sun.applet.Main;
 
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class GetInfos {
+    private double maximaDoDia;
+    private double minimaDoDia;
 
 
     public static void main(String[] args) {
         File file = new File("D:/a.ods");
 
+        List<Ativo> ativos = new ArrayList<>();
         final Sheet sheet;
         final TextA t;
         final OpenDocument doc;
@@ -41,25 +50,21 @@ public class GetInfos {
             vetor[3] = "MFII11";
             file.createNewFile();
             for (int i = 0; i < vetor.length; i++) {
+                Ativo ativo = new Ativo();
+                DayInfos dayInfos = new DayInfos();
+                dayInfos.setDate(new Date());
+                ativo.setName(vetor[i]);
                 URL url = new URL("https://query1.finance.yahoo.com/v8/finance/chart/" + vetor[i] + ".SA?region=US&lang=pt-BR&includePrePost=false&interval=2m&range=1d&corsDomain=finance.yahoo.com&.tsrc=finance");
-                System.out.println("https://query1.finance.yahoo.com/v8/finance/chart/" + vetor[i] + ".SA?region=US&lang=pt-BR&includePrePost=false&interval=2m&range=1d&corsDomain=finance.yahoo.com&.tsrc=finance");
                 HttpURLConnection connection = (HttpURLConnection) url.openConnection();
                 InputStream inputStream = connection.getInputStream();
-
                 String jsonString = inputStreamToString(inputStream);
                 JSONObject jsonObject = new JSONObject(jsonString);
 
-
-                str[i] = (vetor[i] + " preço atual da ação--> " + jsonObject.getJSONObject("chart").getJSONArray("result").getJSONObject(0).getJSONObject("meta").getDouble("regularMarketPrice"));
-                System.out.println("menor de hoje :   " + vetor[i] + " preço atual da ação--> " + jsonObject.getJSONObject("chart").getJSONArray("result").getJSONObject(0).getJSONObject("meta").getDouble("previousClose"));
-                JSONObject hiugh = new JSONObject(jsonObject.getJSONObject("chart").getJSONArray("result").getJSONObject(0).getJSONObject("meta"));
-                JSONObject w = new JSONObject(jsonObject.getJSONObject("chart").getJSONArray("result").getJSONObject(0).getJSONObject("indicators").getJSONArray("quote").getJSONObject(0).getJSONArray("close").get(1));
-                System.out.println(hiugh);
-                System.out.println(w);
-                System.out.println(jsonObject.getJSONObject("chart").getJSONArray("result").getJSONObject(0).getJSONObject("indicators").getJSONArray("quote").getJSONObject(0).getJSONArray("close").getNumber(0));
                 AtomicReference<Double> m = new AtomicReference<>(0.0);
-
-                jsonObject.getJSONObject("chart").getJSONArray("result").getJSONObject(0).getJSONObject("indicators").getJSONArray("quote").getJSONObject(0).getJSONArray("close").forEach((max) -> {
+                double fechamento = jsonObject.getJSONObject("chart").getJSONArray("result").getJSONObject(0).getJSONObject("meta").getDouble("regularMarketPrice");
+                dayInfos.setFechamento(fechamento);
+                JSONArray high = new JSONArray(jsonObject.getJSONObject("chart").getJSONArray("result").getJSONObject(0).getJSONObject("indicators").getJSONArray("quote").getJSONObject(0).getJSONArray("high"));
+                high.forEach((max) -> {
                     if (!max.equals(null)) {
                         System.out.println(max);
                         System.out.println();
@@ -70,11 +75,19 @@ public class GetInfos {
                         }
                     }
                 });
-                System.out.println(m.get());
-
-                System.out.println(m.toString());
-                // System.out.println("maior de hoje :   " + vetor[i] + " preço atual da ação--> ");
-                // System.out.println("dia anterior :   " + vetor[i] + " preço atual da ação--> " + jsonObject.getJSONObject("chart").getJSONArray("result").getJSONObject(0).getJSONObject("indicators").getDouble("previousClose"));
+                dayInfos.setMax(m.get());
+                AtomicReference<Double> a = new AtomicReference<>(Double.MAX_VALUE);
+                JSONArray low = new JSONArray(jsonObject.getJSONObject("chart").getJSONArray("result").getJSONObject(0).getJSONObject("indicators").getJSONArray("low").getJSONObject(0).getJSONArray("low"));
+                low.forEach((min) -> {
+                    if (!min.equals(null)) {
+                        if ((Double) min <= a.get()) {
+                            a.set((Double) min);
+                        }
+                    }
+                });
+                dayInfos.setMin(a.get());
+                ativo.addDayInfos(dayInfos);
+                ativos.add(ativo);
 
             }
 //            sheet.getCellAt("A2").setValue(str[0]);//usado somente quando ha valores nas celulas
