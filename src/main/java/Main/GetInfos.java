@@ -24,6 +24,7 @@ public class GetInfos {
         final TextA t;
         final OpenDocument doc;
 
+
         try {
             sheet = SpreadSheet.createFromFile(file).getSheet(0);
             sheet.setValueAt("nome", 0, 0);
