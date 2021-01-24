@@ -6,6 +6,18 @@ public class DayInfos {
 
     private double max;
     private double min;
+    private double fechamento;
+    private double abertura;
+    private Date date;
+
+    public double getAbertura() {
+        return abertura;
+    }
+
+    public void setAbertura(double abertura) {
+        this.abertura = abertura;
+    }
+
 
     public double getFechamento() {
         return fechamento;
@@ -15,7 +27,6 @@ public class DayInfos {
         this.fechamento = fechamento;
     }
 
-    private double fechamento;
 
     public double getMax() {
         return max;
@@ -40,8 +51,6 @@ public class DayInfos {
     public void setDate(Date date) {
         this.date = date;
     }
-
-    private Date date;
 
 
 }
