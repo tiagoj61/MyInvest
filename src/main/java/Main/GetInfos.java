@@ -1,18 +1,19 @@
 package Main;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.concurrent.atomic.AtomicReference;
+
 import org.jopendocument.dom.spreadsheet.Sheet;
 import org.jopendocument.dom.spreadsheet.SpreadSheet;
 import org.jopendocument.model.OpenDocument;
 import org.jopendocument.model.text.TextA;
 import org.json.JSONObject;
-import sun.applet.Main;
-
-import java.io.*;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class GetInfos {
 
@@ -90,7 +91,6 @@ public class GetInfos {
 
 
         } catch (IOException ex) {
-            Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
         }
 
     }
